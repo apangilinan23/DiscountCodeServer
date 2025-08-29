@@ -1,5 +1,4 @@
 using Common;
-using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
@@ -26,6 +25,7 @@ namespace DiscountCodeClient
         {
             try
             {
+                string message = string.Empty;
                 using (var client = new TcpClient("127.0.0.1", 8082))
                 {
                     Console.WriteLine("Connected to server.");
@@ -33,15 +33,26 @@ namespace DiscountCodeClient
                     using (var stream = client.GetStream())
                     {
                         byte[] messageBytes = Encoding.UTF8.GetBytes(Enum.GetName(typeof(ClientRequestType), type));
+                        
                         await stream.WriteAsync(messageBytes, 0, messageBytes.Length);
 
-                        // Example: Receive data
                         byte[] buffer = new byte[1024];
                         int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
                         string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                        DiscountLbl.Text = receivedData;
-                        DiscountLbl.Visible = true;
-                        UseCodeBtn.Visible = true;
+
+                        if (type == ClientRequestType.GENERATE)
+                        {
+                            UsedCodeLbl.Visible = false;
+                            DiscountLbl.Text = receivedData;
+                            DiscountLbl.Visible = true;
+                            UseCodeBtn.Visible = true;
+                        }
+                        else
+                        {
+                            UsedCodeLbl.Text = receivedData;
+                            UsedCodeLbl.Visible = true;
+                            UseCodeBtn.Visible = false;
+                        }
                     }
                 }
             }

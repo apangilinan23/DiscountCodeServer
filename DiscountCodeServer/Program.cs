@@ -6,17 +6,17 @@ using System.Text;
 
 const string _characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 string _filePathDB = string.Empty;
+string _latestDiscountCode = string.Empty;
 List<string> _codes = new List<string>();
 Random random = new Random();
 
 try
 {
     _filePathDB = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "DB", "Codes.txt");
-    var ip = IPAddress.Any;
-
     //load existing codes in a varialbe
     await LoadCodes(_filePathDB);
 
+    var ip = IPAddress.Any;
     using (var server = new TcpListener(ip, 8082))
     {
         server.Start();
@@ -31,6 +31,7 @@ try
                 {
                     var buffer = new byte[1024];
                     int bytesRead = stream.Read(buffer, 0, buffer.Length);
+
                     var receivedData = (ClientRequestType)Enum.Parse(typeof(ClientRequestType),
                         Encoding.UTF8.GetString(buffer, 0, bytesRead));
 
@@ -41,9 +42,9 @@ try
                             break;
 
                         case ClientRequestType.USE:
-
+                            await UseCodeHandler(stream);                            
                             break;
-                    }                    
+                    }
 
                     Console.WriteLine("Waiting for connections...");
                 }
@@ -56,6 +57,22 @@ catch (Exception e)
     Console.WriteLine(e.Message);
 }
 
+async Task UseCodeHandler(NetworkStream stream)
+{
+    if (!_codes.Contains(_latestDiscountCode))
+        return;
+    var codeToRemove = _latestDiscountCode;
+    _codes.Remove(_latestDiscountCode);
+    await RefreshTextFile();
+
+    //update latestdiscount to last generated
+    _latestDiscountCode = _codes.Last();
+
+    string response = $"{codeToRemove} successfully used!";
+    byte[] responseBytes = Encoding.UTF8.GetBytes(response);
+    await stream.WriteAsync(responseBytes, 0, responseBytes.Length);
+}
+
 async Task GenerateCodeHandler(NetworkStream stream)
 {
     string response = GenerateRandomAlphanumericString(random.Next(7, 9));
@@ -66,7 +83,7 @@ async Task GenerateCodeHandler(NetworkStream stream)
     if (!_codes.Contains(response))
     {
         _codes.Add(response);
-        SaveToTextFile(response);
+        SaveCodeToTextFile(response);
     }
 }
 
@@ -86,22 +103,47 @@ string GenerateRandomAlphanumericString(int length)
     return sb.ToString();
 }
 
-void SaveToTextFile(string response)
+void SaveCodeToTextFile(string code)
 {
     try
     {
         if (!File.Exists(_filePathDB))
             return;
 
-        using (StreamWriter writer = new StreamWriter(_filePathDB, true)) // 'true' for append mode
+        using (StreamWriter writer = new StreamWriter(_filePathDB, true))
         {
-            writer.WriteLine(response);
+            writer.WriteLine(code);
         }
+
+        _latestDiscountCode = code;
     }
     catch (Exception ex)
     {
         Console.WriteLine(ex.Message);
     }
+}
+
+async Task RefreshTextFile()
+{
+    try
+    {
+        if (!File.Exists(_filePathDB))
+            return;
+
+        using (StreamWriter writer = new StreamWriter(_filePathDB, false))
+        {
+            _codes.ForEach(c =>
+            {
+                writer.WriteLineAsync(c);
+            });
+        }
+
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine(ex.Message);
+    }
+
 }
 
 async Task LoadCodes(string path)
