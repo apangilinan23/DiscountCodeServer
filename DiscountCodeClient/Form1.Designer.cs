@@ -48,7 +48,7 @@
             // 
             DiscountLbl.AutoSize = true;
             DiscountLbl.Font = new Font("Verdana", 24F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            DiscountLbl.Location = new Point(318, 80);
+            DiscountLbl.Location = new Point(315, 80);
             DiscountLbl.Name = "DiscountLbl";
             DiscountLbl.Size = new Size(113, 38);
             DiscountLbl.TabIndex = 1;
@@ -69,10 +69,11 @@
             // UsedCodeLbl
             // 
             UsedCodeLbl.AutoSize = true;
-            UsedCodeLbl.Font = new Font("Verdana", 24F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            UsedCodeLbl.Location = new Point(183, 271);
+            UsedCodeLbl.Font = new Font("Verdana", 18F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            UsedCodeLbl.ForeColor = Color.FromArgb(0, 192, 0);
+            UsedCodeLbl.Location = new Point(80, 278);
             UsedCodeLbl.Name = "UsedCodeLbl";
-            UsedCodeLbl.Size = new Size(113, 38);
+            UsedCodeLbl.Size = new Size(83, 29);
             UsedCodeLbl.TabIndex = 3;
             UsedCodeLbl.Text = "label1";
             UsedCodeLbl.Visible = false;

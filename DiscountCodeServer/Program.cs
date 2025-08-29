@@ -68,7 +68,7 @@ async Task UseCodeHandler(NetworkStream stream)
     //update latestdiscount to last generated
     _latestDiscountCode = _codes.Last();
 
-    string response = $"{codeToRemove} successfully used!";
+    string response = $"{codeToRemove} successfully used and deleted from the DB!";
     byte[] responseBytes = Encoding.UTF8.GetBytes(response);
     await stream.WriteAsync(responseBytes, 0, responseBytes.Length);
 }
@@ -82,6 +82,9 @@ async Task GenerateCodeHandler(NetworkStream stream)
     //save to text file
     if (!_codes.Contains(response))
     {
+        if (_codes.Count() + 1 > 2000)
+            return;//limit reached
+
         _codes.Add(response);
         SaveCodeToTextFile(response);
     }
