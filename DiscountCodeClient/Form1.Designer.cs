@@ -30,6 +30,7 @@
         {
             GenerateCodeBtn = new Button();
             DiscountLbl = new Label();
+            UseCodeBtn = new Button();
             SuspendLayout();
             // 
             // GenerateCodeBtn
@@ -46,18 +47,30 @@
             // 
             DiscountLbl.AutoSize = true;
             DiscountLbl.Font = new Font("Verdana", 24F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            DiscountLbl.Location = new Point(327, 161);
+            DiscountLbl.Location = new Point(318, 161);
             DiscountLbl.Name = "DiscountLbl";
             DiscountLbl.Size = new Size(113, 38);
             DiscountLbl.TabIndex = 1;
             DiscountLbl.Text = "label1";
             DiscountLbl.Visible = false;
             // 
+            // UseCodeBtn
+            // 
+            UseCodeBtn.Location = new Point(278, 345);
+            UseCodeBtn.Name = "UseCodeBtn";
+            UseCodeBtn.Size = new Size(250, 82);
+            UseCodeBtn.TabIndex = 2;
+            UseCodeBtn.Text = "Use code!";
+            UseCodeBtn.UseVisualStyleBackColor = true;
+            UseCodeBtn.Visible = false;
+            UseCodeBtn.Click += UseCodeBtn_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(UseCodeBtn);
             Controls.Add(DiscountLbl);
             Controls.Add(GenerateCodeBtn);
             Name = "Form1";
@@ -70,5 +83,6 @@
 
         private Button GenerateCodeBtn;
         private Label DiscountLbl;
+        private Button UseCodeBtn;
     }
 }

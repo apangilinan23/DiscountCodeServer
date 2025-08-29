@@ -1,3 +1,4 @@
+using Common;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -13,46 +14,40 @@ namespace DiscountCodeClient
 
         private void GenerateCodeBtn_Click(object sender, EventArgs e)
         {
-            var ip = GetIp();
-            using (var client = new TcpClient("127.0.0.1", 8082))
-            {
-                Console.WriteLine("Connected to server.");
-
-                using (var stream = client.GetStream())
-                {
-                    byte[] messageBytes = Encoding.UTF8.GetBytes(ip);
-                    stream.Write(messageBytes, 0, messageBytes.Length);
-
-                    // Example: Receive data
-                    byte[] buffer = new byte[256];
-                    int bytesRead = stream.Read(buffer, 0, buffer.Length);
-                    string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                    DiscountLbl.Text = receivedData;
-                    DiscountLbl.Visible = true;
-                }
-            }
+            ConnectToServer(ClientRequestType.GENERATE);
         }
 
-        private string GetIp()
+        private void UseCodeBtn_Click(object sender, EventArgs e)
         {
-            string hostName = Dns.GetHostName();
-            string result = string.Empty;
-            Console.WriteLine($"Local Machine's Host Name: {hostName}");
+            ConnectToServer(ClientRequestType.USE);
+        }
 
-            IPHostEntry ipEntry = Dns.GetHostEntry(hostName);
-            IPAddress[] addresses = ipEntry.AddressList;
-
-            Console.WriteLine("IP Addresses:");
-            foreach (IPAddress ip in addresses)
+        private async Task ConnectToServer(ClientRequestType type)
+        {
+            try
             {
-                // Filter for IPv4 addresses if needed, otherwise list all
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                using (var client = new TcpClient("127.0.0.1", 8082))
                 {
-                    result = ip.ToString();
-                    break;
-                }   
+                    Console.WriteLine("Connected to server.");
+
+                    using (var stream = client.GetStream())
+                    {
+                        byte[] messageBytes = Encoding.UTF8.GetBytes(Enum.GetName(typeof(ClientRequestType), type));
+                        await stream.WriteAsync(messageBytes, 0, messageBytes.Length);
+
+                        // Example: Receive data
+                        byte[] buffer = new byte[1024];
+                        int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+                        string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                        DiscountLbl.Text = receivedData;
+                        DiscountLbl.Visible = true;
+                        UseCodeBtn.Visible = true;
+                    }
+                }
             }
-            return result;
+            catch (Exception ex)
+            {
+            }
         }
     }
 }
