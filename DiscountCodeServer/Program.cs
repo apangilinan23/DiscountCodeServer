@@ -25,8 +25,6 @@ try
         {
             using (var client = server.AcceptTcpClient())
             {
-                Console.WriteLine("Client connected!");
-
                 using (var stream = client.GetStream())
                 {
                     var buffer = new byte[1024];
@@ -35,9 +33,12 @@ try
                     var receivedData = (ClientRequestType)Enum.Parse(typeof(ClientRequestType),
                         Encoding.UTF8.GetString(buffer, 0, bytesRead));
 
+                    Console.WriteLine($"{Enum.GetName(typeof(ClientRequestType),receivedData)} action requested!");
+
                     switch (receivedData)
                     {
                         case ClientRequestType.GENERATE:
+                            
                             await GenerateCodeHandler(stream);
                             break;
 
